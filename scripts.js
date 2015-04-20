@@ -106,7 +106,7 @@ while (lineCount < 10) {
 
 	 	// console.log('Line '+lineCount+' w/o spaces: '+ charachterCountNoSpaces);
 	 	// console.log('Line '+lineCount+' w '+spaceCount+' spaces: '+charachterCountSpaces);
-	 	if ( (charachterCountSpaces < 80) && (charachterCountSpaces > 45) ) {
+	 	if ( (charachterCountSpaces < 80) && (charachterCountSpaces > 50) ) {
 	 		el.zeroWidthElems[i - 1].innerHTML = '<span class="counter">'+charachterCountSpaces+'</span>';
 	 	} else {
 	 		el.zeroWidthElems[i - 1].innerHTML = '<span class="counter error">'+charachterCountSpaces+'</span>';
