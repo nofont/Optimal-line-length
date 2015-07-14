@@ -29,105 +29,78 @@ function addZeroWidthElems(el){
 
 
 function forEachTextLine(el, callback, stringArray) {
- 
 
   // call the above function to insert zero-width elements (if they haven't been already)
   if(!el.hasOwnProperty('zeroWidthElems')) {
     addZeroWidthElems(el);
   }
+
+  console.log(el.zeroWidthElems.length);
  
   // we will keep track of which line number we are on
   var lineCount = 0;
   var charachterCountNoSpaces = 0;
   var charachterCountSpaces = 0;
   var spaceCount = 0;
-
- var lineCount = 0;
  
   // declare variables for calculating element position
   var maxTop = 0, curTop = 0;
  
   // find the last zeroWidth element
-while (lineCount < 10) {
-  
   for(var i = 0; i < el.zeroWidthElems.length; i++) {
 
   	// get the offset relative to the parent element
-    curTop = el.zeroWidthElems[i].offsetTop;
+    if(i == el.zeroWidthElems.length - 1) {
+        //this is the last element, it is automatically the end of the line
+        lineCount++;
+        callback.call(el, el.zeroWidthElems[i], lineCount);
+    } else {
+        //check 1 character ahead
+        //this will ensure we don't count characters that are on the next line
+        curTop = el.zeroWidthElems[i+1].offsetTop;
+    }
 
-  	charachterCountNoSpaces = charachterCountNoSpaces + stringArray[i].length;
-  	spaceCount++;
- 	// console.log('Ord '+i+': '+stringArray[i]+' '+stringArray[i].length);
-
-    
-
+    //because the number of zero width characters is the same as the number of words,
+    //stringArray[i] will give us the word that is to the left of the current zero-width character
+    if(stringArray[i]) {
+    	charachterCountNoSpaces = charachterCountNoSpaces + stringArray[i].length;
+    	spaceCount++;
+    }
  	
     // the first element inspected is automatically the max
     if(i === 0) {
       	maxTop = curTop;
     }
  
-	// if the vertical position is different, the text has wrapped
-	if(curTop != maxTop) {
-	 
-	    // update the maximum
-	    maxTop = curTop;
-	 
-	    // update the line count
-	    lineCount++;
+  	// if the vertical position is different, the text has wrapped
+  	if(curTop != maxTop) {
+  	 
+  	    // update the maximum
+  	    maxTop = curTop;
+  	 
+  	    // update the line count
+  	    lineCount++;
 
-	    console.log(lineCount);
-	 	
-	 	/*
-	 	Example line 1 and 2:
-	 	Lorem ipsum dolor sit amet, consectetuer
-	 	adipiscing elit, sed diam nonummy nibh
+  	    console.log(lineCount);
+  	 	
+  	 	charachterCountSpaces = charachterCountNoSpaces + spaceCount;
 
-		For some reason the counter includes the first word on the second line into the charachter count of line 1.
-	 	Ord 0: Lorem 5
-		Ord 1: ipsum 5
-		Ord 2: dolor 5
-		Ord 3: sit 3
-		Ord 4: amet, 5
-		Ord 5: consectetuer 12
-		Ord 6: adipiscing 10
-		Line 1 w/o spaces: 35
-		Line 1 w 7 spaces: 42
-
-		This needs to be taken into account and therefore we, below, need:
-
-		charachterCountNoSpaces = charachterCountNoSpaces - stringArray[i].length;
-
-		*/
-
-	 	charachterCountNoSpaces = charachterCountNoSpaces - stringArray[i].length;
-
-	 	charachterCountSpaces = charachterCountNoSpaces + spaceCount;
-
-	 	// console.log('Line '+lineCount+' w/o spaces: '+ charachterCountNoSpaces);
-	 	// console.log('Line '+lineCount+' w '+spaceCount+' spaces: '+charachterCountSpaces);
-	 	if ( (charachterCountSpaces < 80) && (charachterCountSpaces > 50) ) {
-	 		el.zeroWidthElems[i - 1].innerHTML = '<span class="counter">'+charachterCountSpaces+'</span>';
-	 	} else {
-	 		el.zeroWidthElems[i - 1].innerHTML = '<span class="counter error">'+charachterCountSpaces+'</span>';
-	 	}
-	 	
- 	
-	    // do something now that we have found the end of a line
-	    callback.call(el, el.zeroWidthElems[i - 1], lineCount);
-	    charachterCountSpaces = 0;
-	 	charachterCountNoSpaces = 0;
-	 	spaceCount = 0;
-	}
-	    // if this is the last element, it is automatically the end of a line
-	else if(i == el.zeroWidthElems.length - 1) {
-	    lineCount++;
-	    callback.call(el, el.zeroWidthElems[i], lineCount);
-	    }
-
+  	 	// console.log('Line '+lineCount+' w/o spaces: '+ charachterCountNoSpaces);
+  	 	// console.log('Line '+lineCount+' w '+spaceCount+' spaces: '+charachterCountSpaces);
+  	 	if ( (charachterCountSpaces < 80) && (charachterCountSpaces > 50) ) {
+  	 		el.zeroWidthElems[i].innerHTML = '<span class="counter">'+charachterCountSpaces+'</span>';
+  	 	} else {
+  	 		el.zeroWidthElems[i].innerHTML = '<span class="counter error">'+charachterCountSpaces+'</span>';
+  	 	}
+  	 	
+   	
+  	    // do something now that we have found the end of a line
+  	    callback.call(el, el.zeroWidthElems[i], lineCount);
+  	    charachterCountSpaces = 0;
+    	 	charachterCountNoSpaces = 0;
+    	 	spaceCount = 0;
+  	}
   } // END FOR 
-
-} // END WHILE
  
   // return the number of lines in the text node
   return lineCount;
@@ -154,10 +127,11 @@ var myTextWrapper = document.getElementById('myTextWrapper');
 stringArray = splitString(myTextWrapper.innerHTML, ' ');
 
 var lineCount = forEachTextLine(myTextWrapper, processEndOfLine, stringArray);
- 
+
 // resorting to some jQuery
 $(window).on('resize', function(){
 	// undo anything that might have been done in a previous call to processEndOfLine()
+  $('.counter').remove();
 	$('.end-of-line').removeClass('end-of-line');
  	// repeat processEndOfLine() now that the wrapping might have changed
 	lineCount = forEachTextLine(myTextWrapper, processEndOfLine, stringArray);
