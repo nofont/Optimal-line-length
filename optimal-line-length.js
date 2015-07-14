@@ -49,6 +49,10 @@ function forEachTextLine(el, callback, stringArray) {
   // find the last zeroWidth element
   for(var i = 0; i < el.zeroWidthElems.length; i++) {
 
+    if(lineCount >= 10) {
+      return;
+    }
+
   	// get the offset relative to the parent element
     if(i == el.zeroWidthElems.length - 1) {
         //this is the last element, it is automatically the end of the line
