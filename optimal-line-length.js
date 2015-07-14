@@ -110,25 +110,14 @@ function forEachTextLine(el, callback, stringArray) {
   return lineCount;
 }
 
-
-// Splits string to array at separator
-function splitString(stringToSplit, separator) {
-  var arrayOfStrings = stringToSplit.split(separator);
-  return arrayOfStrings;
-}
-
-
-
 var processEndOfLine = function (endOfLine, lineNumber) {
 	// do something to each line
 	endOfLine.className += ' end-of-line';
 };
 
-
- 
 var myTextWrapper = document.getElementById('myTextWrapper');
 
-stringArray = splitString(myTextWrapper.innerHTML, ' ');
+stringArray = myTextWrapper.innerHTML.split(/\s+/);
 
 var lineCount = forEachTextLine(myTextWrapper, processEndOfLine, stringArray);
 
